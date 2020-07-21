@@ -92,8 +92,12 @@ module SafeRegexp
               break
             end
             begin
-              result = regexp.public_send(method, *args)
-              result = result.to_a if result.is_a?(MatchData) # cannot be dumped
+              result = []
+              regexp.public_send(method, *args) do |r|
+                for i in 0..$~.length-1
+                  result << [$~.values_at(i).first, $~.offset(i)]
+                end
+              end
             rescue RESCUED_EXCEPTION
               result = $!
             end
